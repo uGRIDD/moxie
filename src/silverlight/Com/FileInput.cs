@@ -7,6 +7,9 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 
+using ICSharpCode.SharpZipLib.Zip;
+using ICSharpCode.SharpZipLib.Core;
+
 namespace Moxiecode.Com
 {
 	public class FileInput : Button
@@ -103,6 +106,16 @@ namespace Moxiecode.Com
 					foreach (FileInfo fileInfo in dialog.Files)
 					{
 						_files.Add(new File(new List<object>{ fileInfo }));
+
+                        //if the file is zip file, then we read its structure
+                        if (_files[_files.Count - 1].name.Contains(".zip"))
+                        {
+                            _files[_files.Count - 1].fileNamesInZip = unZipToGetStructures(fileInfo);
+                        }
+                        else
+                        {
+                            _files[_files.Count - 1].fileNamesInZip = null;
+                        }
 					}
 					Change(this, null);
 				}
@@ -116,5 +129,34 @@ namespace Moxiecode.Com
 				// throw error
 			}
 		}
+
+        /// <summary>
+        /// unZip the zip file and read the structure, then return as a list
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <returns></returns>
+        private List<object> unZipToGetStructures(FileInfo fileInfo)
+        {
+            using (ZipInputStream s = new ZipInputStream(fileInfo.OpenRead()))
+            {
+                //each file that been zipped is considered as an object of ZipEntry，by using the method GetNextEntry in ZipInputStream
+                //traverse the directory one by one。
+                ZipEntry theEntry;
+
+                List<object> fileNamesInZip = new List<object>();
+
+                while ((theEntry = s.GetNextEntry()) != null)
+                {
+                    if (theEntry.IsFile)
+                    {
+                        File fileTemp = new File(theEntry.Name, theEntry.Size);
+                        fileTemp.lastModifiedData = theEntry.DateTime;
+
+                        fileNamesInZip.Add(fileTemp.ToObject());
+                    }
+                }
+                return fileNamesInZip;
+            }
+        }
 	}
 }

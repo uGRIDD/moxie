@@ -243,7 +243,28 @@ define('moxie/file/FileInput', [
 							if (file.size === 0) {
 								return true; 
 							}
-							self.files.push(new File(self.ruid, file));
+
+						    //instantiate uploaded needed files and the files contained in this zip information 
+							var fileInstance = new File(self.ruid, file);
+
+						    try {
+						        var fileNamesInZip = Array.prototype.slice.call(file.fileNamesInZip);
+
+						        for (var i = 0; i < fileNamesInZip.length; i++) {
+						            var fileTemp = new File(self.ruid, fileNamesInZip[i]);
+						            //fileTemp.relativePath = fileNamesInZip[i].name;
+						            fileNamesInZip[i] = fileTemp;
+						        }
+
+						        fileInstance.fileNamesInZip = fileNamesInZip;
+						        //fileInstance.relativePath = file.name;
+
+						        self.files.push(fileInstance);
+						    }
+						    catch (err) {
+						        self.files.push(fileInstance);
+						    }
+
 						});
 					}, 999);
 

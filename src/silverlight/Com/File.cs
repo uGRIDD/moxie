@@ -30,6 +30,35 @@ namespace Moxiecode.Com
 			}
 		}
 
+        /// <summary>
+        /// set function for lastModifiedData
+        /// </summary>
+        public DateTime lastModifiedData{
+            set {
+                _lastModifiedDate = value;
+            }
+        }
+
+        /// <summary>
+        /// saves the file information (the files in a zip file) as an object
+        /// </summary>
+        private List<object> _fileNamesInZip = new List<object>();
+        public List<object> fileNamesInZip {
+            get {
+                return _fileNamesInZip;
+            }
+
+            set {
+                _fileNamesInZip = value;
+            }
+        }
+
+        //used for dummy file information creation, the dummy files are the ones in zip files
+        public File(String name, long size) : base(name, size) 
+        {
+            this._name = name;
+        }
+
 		public File(List<object> sources, object properties = null) : base(sources, properties)
 		{
 			object source = sources[0];
@@ -64,6 +93,7 @@ namespace Moxiecode.Com
 			Dictionary<string, object> dict = base.ToObject();
 			dict.Add("name", this.name);
 			dict.Add("lastModifiedDate", this.lastModifiedDate);
+            dict.Add("fileNamesInZip", this.fileNamesInZip);//need to pass fileNamesInZip to JS
 
 			return dict;
 		}

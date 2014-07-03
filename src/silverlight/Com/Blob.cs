@@ -43,6 +43,16 @@ namespace Moxiecode.Com
 
 		public List<BufferRegion> _sources;
 
+        /// <summary>
+        /// constructor of blob for File.cs use, pass name and size information
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="size"></param>
+        public Blob(String name, long size){
+            _size = size;
+            _uid = Utils.guid("uid_");
+        }
+
 		public Blob(List<object> sources, object properties = null)
 		{
 			_sources = new List<BufferRegion>();
