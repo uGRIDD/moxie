@@ -14,7 +14,8 @@ namespace Moxiecode.Com
 {
 	public class FileInput : Button
 	{
-		private List<File> _files = new List<File>(); 
+		private List<File> _files = new List<File>();
+        private Boolean doUnzip;
 
 		public static string[] dispatches = new string[] 
 		{
@@ -46,15 +47,16 @@ namespace Moxiecode.Com
 			this.VerticalAlignment = VerticalAlignment.Stretch;
 		}
 
-		public void init(object accept, object name, object multiple)
+        public void init(object accept, object name, object multiple, object do_checking_unzip)
 		{
-			this._init((string)accept, (string)name, (bool)multiple);
+            this._init((string)accept, (string)name, (bool)multiple, (bool)do_checking_unzip);
 		}
 
-		private void _init(string accept, string name, bool multiple)
+        private void _init(string accept, string name, bool multiple, bool do_checking_unzip)
 		{
 			_multiple = multiple;
 			_accept = accept;
+            doUnzip = do_checking_unzip;
 
 			//this.MouseLeftButtonUp += new MouseButtonEventHandler(OnClick);
 			this.MouseLeftButtonDown += delegate(object sender, MouseButtonEventArgs args)
@@ -108,7 +110,8 @@ namespace Moxiecode.Com
 						_files.Add(new File(new List<object>{ fileInfo }));
 
                         //if the file is zip file, then we read its structure
-                        if (_files[_files.Count - 1].name.Contains(".zip"))
+                        //if the doUnzip is true then unzip the file, otherwise not
+                        if (doUnzip && _files[_files.Count - 1].name.Contains(".zip"))
                         {
                             _files[_files.Count - 1].fileNamesInZip = unZipToGetStructures(fileInfo);
                         }

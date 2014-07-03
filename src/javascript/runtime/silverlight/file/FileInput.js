@@ -27,7 +27,7 @@ define("moxie/runtime/silverlight/file/FileInput", [
 				return filter;
 			}
 			
-			this.getRuntime().shimExec.call(this, 'FileInput', 'init', toFilters(options.accept), options.name, options.multiple);
+			this.getRuntime().shimExec.call(this, 'FileInput', 'init', toFilters(options.accept), options.name, options.multiple, options.do_checking_unzip);
 			this.trigger('ready');
 		}
 	};
