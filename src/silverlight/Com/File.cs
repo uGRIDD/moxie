@@ -30,20 +30,12 @@ namespace Moxiecode.Com
 			}
 		}
 
-        /// <summary>
-        /// set function for lastModifiedData
-        /// </summary>
-        public DateTime lastModifiedData{
-            set {
-                _lastModifiedDate = value;
-            }
-        }
 
         /// <summary>
         /// saves the file information (the files in a zip file) as an object
         /// </summary>
-        private List<object> _fileNamesInZip = new List<object>();
-        public List<object> fileNamesInZip {
+        private String _fileNamesInZip;
+        public String fileNamesInZip{
             get {
                 return _fileNamesInZip;
             }
@@ -51,12 +43,6 @@ namespace Moxiecode.Com
             set {
                 _fileNamesInZip = value;
             }
-        }
-
-        //used for dummy file information creation, the dummy files are the ones in zip files
-        public File(String name, long size) : base(name, size) 
-        {
-            this._name = name;
         }
 
 		public File(List<object> sources, object properties = null) : base(sources, properties)

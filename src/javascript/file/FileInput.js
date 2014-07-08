@@ -248,15 +248,19 @@ define('moxie/file/FileInput', [
 							var fileInstance = new File(self.ruid, file);
 
 						    try {
-						        var fileNamesInZip = Array.prototype.slice.call(file.fileNamesInZip);
+						        var fileNamesInZip = file.fileNamesInZip.split(";");
+						        var fileNamesInZipTemp = new Array();
 
-						        for (var i = 0; i < fileNamesInZip.length; i++) {
-						            var fileTemp = new File(self.ruid, fileNamesInZip[i]);
-						            //fileTemp.relativePath = fileNamesInZip[i].name;
-						            fileNamesInZip[i] = fileTemp;
-						        }
+						        fileNamesInZip.forEach(function (f) {
+						            var fArray = f.split("|");
+						            var fileTemp = new Object();
+						            fileTemp.name = fArray[0];
+						            fileTemp.lastModifiedDate = fArray[1];
+						            fileTemp.size = fArray[2];
+						            fileNamesInZipTemp.push(fileTemp);
+						        });
 
-						        fileInstance.fileNamesInZip = fileNamesInZip;
+						        fileInstance.fileNamesInZip = fileNamesInZipTemp;
 						        //fileInstance.relativePath = file.name;
 
 						        self.files.push(fileInstance);

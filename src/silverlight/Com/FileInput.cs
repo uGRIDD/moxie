@@ -6,6 +6,7 @@ using System.Windows.Browser;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Text;
 
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.Core;
@@ -138,7 +139,7 @@ namespace Moxiecode.Com
         /// </summary>
         /// <param name="fileInfo"></param>
         /// <returns></returns>
-        private List<object> unZipToGetStructures(FileInfo fileInfo)
+        private String unZipToGetStructures(FileInfo fileInfo)
         {
             using (ZipInputStream s = new ZipInputStream(fileInfo.OpenRead()))
             {
@@ -146,19 +147,16 @@ namespace Moxiecode.Com
                 //traverse the directory one by one。
                 ZipEntry theEntry;
 
-                List<object> fileNamesInZip = new List<object>();
+                StringBuilder fileNamesInZip = new StringBuilder();
 
                 while ((theEntry = s.GetNextEntry()) != null)
                 {
                     if (theEntry.IsFile)
                     {
-                        File fileTemp = new File(theEntry.Name, theEntry.Size);
-                        fileTemp.lastModifiedData = theEntry.DateTime;
-
-                        fileNamesInZip.Add(fileTemp.ToObject());
+                        fileNamesInZip.Append(theEntry.Name + "|" + theEntry.DateTime + "|" + theEntry.Size + ";");
                     }
                 }
-                return fileNamesInZip;
+                return fileNamesInZip.ToString();
             }
         }
 	}
