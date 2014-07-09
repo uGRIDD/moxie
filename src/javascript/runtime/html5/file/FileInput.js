@@ -119,42 +119,44 @@ define("moxie/runtime/html5/file/FileInput", [
 					    //used for checking the number of zip files
 					    var count = 0;
 
-					    var i;
-					    for (i = 0; i < _files.length; i++) {
-					        if (_files[i].name.indexOf(".zip") > 0) {
-					            count++;
+					    if (_options.do_checking_unzip) {
+					        var i;
+					        for (i = 0; i < _files.length; i++) {
+					            if (_files[i].name.indexOf(".zip") > 0) {
+					                count++;
+					            }
+					        }
+
+					        //read the structure of each zip files, pass the files that are not zip file
+					        for (i = 0; i < _files.length; i++) {
+					            (function (i) {
+					                var file = _files[i];
+
+					                if (file.name.indexOf(".zip") > 0) {
+					                    getEntries(file, function (entries) {
+					                        var fileNamesInZip = new StringBuffer();
+					                        entries.forEach(function (entry) {
+					                            if (!entry.directory) {
+					                                fileNamesInZip.append(entry.filename.toString());
+					                                fileNamesInZip.append("|");
+					                                fileNamesInZip.append(entry.lastModDate.toString());
+					                                fileNamesInZip.append("|");
+					                                fileNamesInZip.append(entry.uncompressedSize.toString());
+					                                fileNamesInZip.append(";");
+					                            }
+					                        });
+					                        file.fileNamesInZip = fileNamesInZip.toString();
+					                        _files[i] = file;
+
+					                        if (count-- == 0) {
+					                            comp.trigger('change');
+					                        }
+					                    });
+					                }
+					            })(i);
 					        }
 					    }
 
-                        //read the structure of each zip files, pass the files that are not zip file
-					    for (i = 0; i < _files.length; i++) {
-					        (function (i) {
-					            var file = _files[i];
-
-					            if (file.name.indexOf(".zip") > 0) {
-					                getEntries(file, function (entries) {
-					                    var fileNamesInZip = new StringBuffer();
-					                    entries.forEach(function (entry) {
-					                        if (!entry.directory) {
-					                            fileNamesInZip.append(entry.filename.toString());
-					                            fileNamesInZip.append("|");
-					                            fileNamesInZip.append(entry.lastModDate.toString());
-					                            fileNamesInZip.append("|");
-					                            fileNamesInZip.append(entry.uncompressedSize.toString());
-					                            fileNamesInZip.append(";");
-					                        }
-					                    });
-					                    file.fileNamesInZip = fileNamesInZip.toString();
-					                    _files[i] = file;
-
-					                    if (count-- == 0) {
-					                        comp.trigger('change');
-					                    }
-					                });
-					            }
-					        })(i);
-					    }
-					    
 					    if (count-- == 0) {
 					        comp.trigger('change');
 					    }
