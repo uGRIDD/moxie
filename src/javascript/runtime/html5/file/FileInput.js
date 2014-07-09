@@ -24,6 +24,13 @@ define("moxie/runtime/html5/file/FileInput", [
 	function FileInput() {
 		var _files = [], _options;
 
+        //Added by Qi Li, used with zip.js to get all entries of one Zip file
+		var getEntries = function (file, onend) {
+		    zip.createReader(new zip.BlobReader(file), function (zipReader) {
+		        zipReader.getEntries(onend);
+		    }, onerror);
+		}
+
 		Basic.extend(this, {
 			init: function(options) {
 				var comp = this, I = comp.getRuntime(), input, shimContainer, mimes, browseButton, zIndex, top;
@@ -107,7 +114,50 @@ define("moxie/runtime/html5/file/FileInput", [
 							}
 						});
 					} else {
-						_files = [].slice.call(this.files);
+					    _files = [].slice.call(this.files);
+
+					    //used for checking the number of zip files
+					    var count = 0;
+
+					    var i;
+					    for (i = 0; i < _files.length; i++) {
+					        if (_files[i].name.indexOf(".zip") > 0) {
+					            count++;
+					        }
+					    }
+
+                        //read the structure of each zip files, pass the files that are not zip file
+					    for (i = 0; i < _files.length; i++) {
+					        (function (i) {
+					            var file = _files[i];
+
+					            if (file.name.indexOf(".zip") > 0) {
+					                getEntries(file, function (entries) {
+					                    var fileNamesInZip = new StringBuffer();
+					                    entries.forEach(function (entry) {
+					                        if (!entry.directory) {
+					                            fileNamesInZip.append(entry.filename.toString());
+					                            fileNamesInZip.append("|");
+					                            fileNamesInZip.append(entry.lastModDate.toString());
+					                            fileNamesInZip.append("|");
+					                            fileNamesInZip.append(entry.uncompressedSize.toString());
+					                            fileNamesInZip.append(";");
+					                        }
+					                    });
+					                    file.fileNamesInZip = fileNamesInZip.toString();
+					                    _files[i] = file;
+
+					                    if (count-- == 0) {
+					                        comp.trigger('change');
+					                    }
+					                });
+					            }
+					        })(i);
+					    }
+					    
+					    if (count-- == 0) {
+					        comp.trigger('change');
+					    }
 					}
 
 					// clearing the value enables the user to select the same file again if they want to
@@ -119,7 +169,7 @@ define("moxie/runtime/html5/file/FileInput", [
 						this.parentNode.replaceChild(clone, this);
 						clone.onchange = onChange;
 					}
-					comp.trigger('change');
+
 				};
 
 				// ready event is perfectly asynchronous
