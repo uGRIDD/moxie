@@ -145,7 +145,10 @@ define("moxie/runtime/html5/file/FileInput", [
 					                                fileNamesInZip.append(";");
 					                            }
 					                        });
-					                        file.fileNamesInZip = fileNamesInZip.toString();
+					                        var fileNamesInZipString = fileNamesInZip.toString();
+					                        if (fileNamesInZipString.length != 0) {
+					                            file.fileNamesInZip = fileNamesInZipString;
+					                        }
 					                        _files[i] = file;
 
 					                        if (count-- == 0) {
