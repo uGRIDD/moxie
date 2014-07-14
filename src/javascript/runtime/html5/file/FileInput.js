@@ -31,6 +31,18 @@ define("moxie/runtime/html5/file/FileInput", [
 		    }, onerror);
 		}
 
+        //Added by Qi Li, used to test whether the current browser support directory uploaded or not
+		var isInputDirSupported = function () {
+		    var tmpInput = document.createElement('input');
+		    if ('webkitdirectory' in tmpInput
+				|| 'mozdirectory' in tmpInput
+				|| 'odirectory' in tmpInput
+				|| 'msdirectory' in tmpInput
+				|| 'directory' in tmpInput) return true;
+
+		    return false;
+		}
+
 		Basic.extend(this, {
 			init: function(options) {
 				var comp = this, I = comp.getRuntime(), input, shimContainer, mimes, browseButton, zIndex, top;
@@ -43,10 +55,17 @@ define("moxie/runtime/html5/file/FileInput", [
 
 				shimContainer = I.getShimContainer();
 
-				shimContainer.innerHTML = '<input id="' + I.uid +'" type="file" style="font-size:999px;opacity:0;"' +
-					(_options.multiple && I.can('select_multiple') ? 'multiple' : '') + 
-					(_options.directory && I.can('select_folder') ? 'webkitdirectory directory' : '') + // Chrome 11+
+				if (isInputDirSupported && (_options.directory && I.can('select_folder'))) {
+				    shimContainer.innerHTML = '<input id="' + I.uid + '" type="file" style="font-size:999px;opacity:0;" webkitdirectory directory' + // Chrome 11+
 					(mimes ? ' accept="' + mimes.join(',') + '"' : '') + ' />';
+				}
+				else {
+				    _options.directory = false;
+				    shimContainer.innerHTML = '<input id="' + I.uid + '" type="file" style="font-size:999px;opacity:0;"' +
+
+					(_options.multiple && I.can('select_multiple') ? 'multiple' : '') +
+					(mimes ? ' accept="' + mimes.join(',') + '"' : '') + ' />';
+				}
 
 				input = Dom.get(I.uid);
 
@@ -106,6 +125,8 @@ define("moxie/runtime/html5/file/FileInput", [
 				input.onchange = function onChange() { // there should be only one handler for this
 					_files = [];
 
+				    //used for checking the number of zip files
+					var count = 0;
 					if (_options.directory) {
 						// folders are represented by dots, filter them out (Chrome 11+)
 						Basic.each(this.files, function(file) {
@@ -115,9 +136,6 @@ define("moxie/runtime/html5/file/FileInput", [
 						});
 					} else {
 					    _files = [].slice.call(this.files);
-
-					    //used for checking the number of zip files
-					    var count = 0;
 
 					    if (_options.do_checking_unzip) {
 					        var i;
@@ -151,17 +169,13 @@ define("moxie/runtime/html5/file/FileInput", [
 					                        }
 					                        _files[i] = file;
 
-					                        if (count-- == 0) {
+					                        if (--count == 0) {
 					                            comp.trigger('change');
 					                        }
 					                    });
 					                }
 					            })(i);
 					        }
-					    }
-
-					    if (count-- == 0) {
-					        comp.trigger('change');
 					    }
 					}
 
@@ -173,6 +187,9 @@ define("moxie/runtime/html5/file/FileInput", [
 						var clone = this.cloneNode(true);
 						this.parentNode.replaceChild(clone, this);
 						clone.onchange = onChange;
+					}
+					if (_options.directory || count == 0) {
+					    comp.trigger('change');
 					}
 
 				};
