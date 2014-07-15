@@ -261,11 +261,13 @@ define('moxie/file/FileInput', [
 						        });
 
 						        fileInstance.fileNamesInZip = fileNamesInZipTemp;
-						        //fileInstance.relativePath = file.name;
 
 						        self.files.push(fileInstance);
 						    }
-						    catch (err) {
+						    catch (err) {//catch is used for normal files (non-zip file)
+						        if (file.hasOwnProperty('webkitRelativePath')) {
+						            fileInstance.relativePath = file.webkitRelativePath;
+						        }
 						        self.files.push(fileInstance);
 						    }
 
