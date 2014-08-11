@@ -247,7 +247,15 @@ define('moxie/file/FileInput', [
 						    //instantiate uploaded needed files and the files contained in this zip information 
 							var fileInstance = new File(self.ruid, file);
 
+						    //if it is html5 file, then try to get the directory infomation, if it is "", then it means just the normal input but not directory input
+							if (Basic.typeOf(file) == "file") {
+							    if (file.hasOwnProperty("webkitRelativePath")) {
+							        fileInstance.relativePath = file.webkitRelativePath.replace("/".concat(file.name), "");
+							    }
+							}
+
 						    try {
+						        var fileNamesInZipString = file.fileNamesInZip.substring(0, file.fileNamesInZip.length - 1);
 						        var fileNamesInZip = file.fileNamesInZip.split(";");
 						        var fileNamesInZipTemp = new Array();
 
@@ -265,9 +273,6 @@ define('moxie/file/FileInput', [
 						        self.files.push(fileInstance);
 						    }
 						    catch (err) {//catch is used for normal files (non-zip file)
-						        if (file.hasOwnProperty('webkitRelativePath')) {
-						            fileInstance.relativePath = file.webkitRelativePath;
-						        }
 						        self.files.push(fileInstance);
 						    }
 

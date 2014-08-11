@@ -75,7 +75,7 @@ define('moxie/file/File', [
 			@type {String}
 			@default ''
 			*/
-			relativePath: file.name || '',
+			relativePath: '',
 			
 			/**
 			Date of last modification
