@@ -51,7 +51,10 @@ define("moxie/runtime/html5/file/FileDrop", [
 					// Chrome 21+ accepts folders via Drag'n'Drop
 					if (e.dataTransfer.items && e.dataTransfer.items[0].webkitGetAsEntry) {
 						_readItems(e.dataTransfer.items, function() {
-							comp.files = _files;
+						    comp.files = _files;
+						    for (var i = 0; i < comp.files.length; i++) {
+						        comp.files[i].relativePath = comp.files[i].relativePath.substring(1, comp.files[i].relativePath.length).replace("/".concat(comp.files[i].name), "");
+						    }
 							comp.trigger("drop");
 						});
 					} else {
